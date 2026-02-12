@@ -3,70 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Breach Directory Scanner</title>
+<title>Dark Intelligence Dashboard</title>
 
 <style>
-body {
-    margin: 0;
-    background: #0d0d0d;
-    color: #00ff88;
-    font-family: monospace;
-    text-align: center;
+* {
+    box-sizing: border-box;
 }
 
-h1 {
-    margin-top: 60px;
+body {
+    margin: 0;
+    background: #0a0a0a;
+    font-family: monospace;
+    color: #00ff88;
+}
+
+/* HEADER */
+.header {
+    text-align: center;
+    padding: 30px 20px;
+    font-size: 28px;
     text-shadow: 0 0 15px #00ff88;
 }
 
+/* SEARCH AREA */
+.search-box {
+    text-align: center;
+    padding: 20px;
+}
+
 input {
+    width: 90%;
+    max-width: 400px;
     padding: 12px;
-    width: 280px;
-    background: black;
+    background: #111;
     border: 1px solid #00ff88;
     color: #00ff88;
-    margin-top: 30px;
+    border-radius: 6px;
 }
 
 button {
     padding: 12px 25px;
+    margin-top: 15px;
     background: #00ff88;
     border: none;
     font-weight: bold;
     cursor: pointer;
-    margin-left: 10px;
+    border-radius: 6px;
+    transition: 0.3s;
 }
 
 button:hover {
     box-shadow: 0 0 20px #00ff88;
 }
 
-.result {
-    margin-top: 40px;
-    width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: left;
-    white-space: pre-wrap;
-    border: 1px solid #00ff88;
+/* SUMMARY */
+.summary {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+/* RESULT GRID */
+.results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
     padding: 20px;
+}
+
+/* CARD */
+.card {
+    background: #111;
+    border: 1px solid #00ff88;
+    padding: 15px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 0 15px #00ff88;
+}
+
+.badge-danger {
+    color: red;
+    font-weight: bold;
+}
+
+.badge-safe {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.loading {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* MOBILE TWEAK */
+@media (max-width: 600px) {
+    .header {
+        font-size: 20px;
+    }
 }
 </style>
 </head>
 
 <body>
 
-<h1>⚡ Breach Directory Scanner</h1>
+<div class="header">
+⚡ DARK INTELLIGENCE DASHBOARD
+</div>
 
-<input type="text" id="query" placeholder="Enter email address">
-<button onclick="search()">SCAN</button>
+<div class="search-box">
+    <input type="text" id="query" placeholder="Enter email address">
+    <br>
+    <button onclick="search()">SCAN TARGET</button>
+</div>
 
-<div class="result" id="result"></div>
+<div class="summary" id="summary"></div>
+<div class="loading" id="loading"></div>
+<div class="results" id="results"></div>
 
 <script>
 async function search() {
 
     const query = document.getElementById("query").value;
+    const resultsDiv = document.getElementById("results");
+    const summaryDiv = document.getElementById("summary");
+    const loadingDiv = document.getElementById("loading");
+
+    if (!query) {
+        alert("Enter email first!");
+        return;
+    }
+
+    resultsDiv.innerHTML = "";
+    summaryDiv.innerHTML = "";
+    loadingDiv.innerHTML = "Scanning dark web...";
+
+    try {
+
+        const response = await fetch(
+            `https://breachdirectory.p.rapidapi.com/?func=auto&term=${encodeURIComponent(query)}`,
+            {
+                method: "GET",
+                headers: {
+                    "x-rapidapi-host": "breachdirectory.p.rapidapi.com",
+                    "x-rapidapi-key": "888dd4846fmsh0c09240cc85257dp1b7bc7jsna8857a4e8a63"
+                }
+            }
+        );
+
+        const data = await response.json();
+        loadingDiv.innerHTML = "";
+
+        if (!data.success || data.found === 0) {
+            summaryDiv.innerHTML = "✅ No breaches found.";
+            return;
+        }
+
+        summaryDiv.innerHTML = `🔥 Breaches Found: ${data.found}`;
+
+        data.result.forEach(item => {
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+                <p><strong>📧 Email:</strong> ${item.email}</p>
+                <p><strong>🌐 Source:</strong> ${item.sources}</p>
+                <p><strong>🔐 Password:</strong> 
+                    ${item.password ? 
+                        "<span class='badge-danger'>LEAKED ⚠️</span>" : 
+                        "<span class='badge-safe'>Not Exposed</span>"
+                    }
+                </p>
+                ${item.password ? `<p><strong>Leaked Value:</strong> ${item.password}</p>` : ""}
+            `;
+
+            resultsDiv.appendChild(card);
+        });
+
+    } catch (error) {
+        loadingDiv.innerHTML = "";
+        summaryDiv.innerHTML = "Error fetching data.";
+    }
+}
+</script>
+
+</body>
+</html>    const query = document.getElementById("query").value;
     const resultDiv = document.getElementById("result");
 
     if (!query) {
