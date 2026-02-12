@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dark Intelligence</title>
+
+<style>
+body {
+    margin:0;
+    background:black;
+    color:#00ff88;
+    font-family:monospace;
+    text-align:center;
+}
+
+input {
+    padding:12px;
+    width:280px;
+    margin-top:40px;
+    background:black;
+    border:1px solid #00ff88;
+    color:#00ff88;
+}
+
+button {
+    padding:12px 25px;
+    background:#00ff88;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.result {
+    margin-top:30px;
+    white-space:pre-wrap;
+}
+</style>
+</head>
+
+<body>
+
+<h1>⚡ Dark Intelligence System</h1>
+
+<input type="text" id="query" placeholder="Enter email">
+<button onclick="search()">SCAN</button>
+
+<div class="result" id="result"></div>
+
+<script>
+async function search(){
+    const q = document.getElementById("query").value;
+    const res = await fetch("/api/search?q=" + q);
+    const data = await res.json();
+    document.getElementById("result").innerText =
+        JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
