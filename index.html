@@ -1,59 +1,157 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dark Intelligence</title>
+<title>Dark Breach Intelligence</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 body {
-    margin:0;
-    background:black;
-    color:#00ff88;
-    font-family:monospace;
-    text-align:center;
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    background: black;
+    color: #00ffcc;
+    overflow-x: hidden;
+}
+
+/* Matrix background animation */
+body::before {
+    content: "";
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0,255,204,0.05) 0px,
+        rgba(0,255,204,0.05) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    animation: move 4s linear infinite;
+    z-index: -1;
+}
+
+@keyframes move {
+    from {background-position: 0 0;}
+    to {background-position: 0 100px;}
+}
+
+.container {
+    text-align: center;
+    margin-top: 120px;
+}
+
+h1 {
+    font-size: 40px;
+    text-shadow: 0 0 15px #00ffcc;
 }
 
 input {
-    padding:12px;
-    width:280px;
-    margin-top:40px;
-    background:black;
-    border:1px solid #00ff88;
-    color:#00ff88;
+    padding: 15px;
+    width: 300px;
+    border-radius: 30px;
+    border: 2px solid #00ffcc;
+    background: transparent;
+    color: #00ffcc;
+    outline: none;
+    font-size: 16px;
 }
 
 button {
-    padding:12px 25px;
-    background:#00ff88;
-    border:none;
-    font-weight:bold;
-    cursor:pointer;
+    padding: 15px 30px;
+    border-radius: 30px;
+    border: none;
+    background: #00ffcc;
+    color: black;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.3s;
 }
 
-.result {
-    margin-top:30px;
-    white-space:pre-wrap;
+button:hover {
+    background: #00ffaa;
+    box-shadow: 0 0 20px #00ffcc;
+}
+
+.loader {
+    margin-top: 30px;
+    display: none;
+}
+
+.result-card {
+    margin: 40px auto;
+    padding: 25px;
+    width: 80%;
+    border: 1px solid #00ffcc;
+    border-radius: 15px;
+    background: rgba(0,255,204,0.05);
+    box-shadow: 0 0 20px #00ffcc33;
+    text-align: left;
+}
+
+.error {
+    color: red;
 }
 </style>
 </head>
 
 <body>
 
-<h1>⚡ Dark Intelligence System</h1>
+<div class="container">
+    <h1>⚡ Dark Breach Intelligence</h1>
+    <input type="text" id="query" placeholder="Enter email or username">
+    <button onclick="searchBreach()">SCAN</button>
 
-<input type="text" id="query" placeholder="Enter email">
-<button onclick="search()">SCAN</button>
-
-<div class="result" id="result"></div>
+    <div class="loader" id="loader">Scanning dark web...</div>
+    <div id="result"></div>
+</div>
 
 <script>
-async function search(){
-    const q = document.getElementById("query").value;
-    const res = await fetch("/api/search?q=" + q);
-    const data = await res.json();
-    document.getElementById("result").innerText =
-        JSON.stringify(data, null, 2);
+async function searchBreach() {
+    const query = document.getElementById("query").value;
+    const loader = document.getElementById("loader");
+    const resultDiv = document.getElementById("result");
+
+    if (!query) {
+        alert("Enter something first!");
+        return;
+    }
+
+    loader.style.display = "block";
+    resultDiv.innerHTML = "";
+
+    try {
+        const response = await fetch("YOUR_ENDPOINT?q=" + query, {
+            method: "GET",
+            headers: {
+                "X-RapidAPI-Key": "YOUR_API_KEY",
+                "X-RapidAPI-Host": "YOUR_HOST"
+            }
+        });
+
+        const data = await response.json();
+
+        loader.style.display = "none";
+
+        if (!data || data.length === 0) {
+            resultDiv.innerHTML = "<div class='error'>No Breach Found.</div>";
+            return;
+        }
+
+        resultDiv.innerHTML = `
+            <div class="result-card">
+                <h3>Scan Result:</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            </div>
+        `;
+
+    } catch (error) {
+        loader.style.display = "none";
+        resultDiv.innerHTML = "<div class='error'>Error fetching data.</div>";
+    }
 }
 </script>
 
